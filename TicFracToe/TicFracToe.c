@@ -66,6 +66,8 @@ int main(int argc, char *argv[]){
 		}
 		moveComplete = 0;
 		while(moveComplete == 0){		
+			currentGrid(grid);
+			refresh();
 			instruct(2, player); //tells player to make their move
 			getInput(input); //Player chooses a space
 			space = input[0]; //space is assigned to variable

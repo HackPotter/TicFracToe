@@ -15,7 +15,7 @@ void instruct(int number, char player);
 void currentGrid(char grid);
 int playerMove(char player, int space, int grid[]);
 int gridNumAssign(char grid);
-void printSubGrids(int TopLeft[], int TopCntr[], int TopRght[], int MidLeft[], int MidCntr[], int MidRght[], int LowLeft[], int LowCntr, int LowRght[]);
+void printSubGrids(int TopLeft[], int TopCntr[], int TopRght[], int MidLeft[], int MidCntr[], int MidRght[], int LowLeft[], int LowCntr[], int LowRght[]);
 
 
 int main(int argc, char *argv[]){
@@ -64,6 +64,7 @@ int main(int argc, char *argv[]){
 			}
 			
 		}
+		moveComplete = 0;
 		while(moveComplete == 0){		
 			instruct(2, player); //tells player to make their move
 			getInput(input); //Player chooses a space
@@ -114,9 +115,44 @@ int main(int argc, char *argv[]){
 					if(playerMove(player, gridNumAssign(space), LowRght) == 1){
 						moveComplete = 1;
 						break;
-					}
-
+					}		
 			}
+			
+			printSubGrids(TopLeft, TopCntr, TopRght, MidLeft, MidCntr, MidRght, LowLeft, LowCntr, LowRght);
+
+			//This block of code checks all board for win conditions including the main board
+			MainBoard[0] = checkForWin(TopLeft);
+			MainBoard[1] = checkForWin(TopCntr);
+			MainBoard[2] = checkForWin(TopRght);
+			MainBoard[3] = checkForWin(MidLeft);
+			MainBoard[4] = checkForWin(MidCntr);
+			MainBoard[5] = checkForWin(MidRght);
+			MainBoard[6] = checkForWin(LowLeft);
+			MainBoard[7] = checkForWin(LowCntr);
+			MainBoard[8] = checkForWin(LowRght);
+			
+			winner = checkForWin(MainBoard);
+			
+			refresh();
+			moveComplete = 1; //end turn
+
+			//swap active player
+			if(player == 'X'){
+				player = 'O';
+			}
+			else if(player == 'O'){
+				player = 'X';
+			}
+			
+			//Assign grid for next move
+			if(MainBoard[gridNumAssign(space)] == 0){
+				grid = space;
+				gridSelected = 1;
+			}
+			else{
+				gridSelected = 0;
+			}
+			refresh();
 		}
 	}
 
@@ -398,8 +434,11 @@ int checkForWin(int array[]){
 	return 0;
 }
 
-void printSubGrids(int TopLeft[], int TopCntr[], int TopRght[], int MidLeft[], int MidCntr[], int MidRght[], int LowLeft[], int LowCntr, int LowRght[]){
+void printSubGrids(int TopLeft[], int TopCntr[], int TopRght[], int MidLeft[], int MidCntr[], int MidRght[], int LowLeft[], int LowCntr[], int LowRght[]){
 	int i = 0;
+	
+	//I know this is a horrible function. I should have done this whole thing differently, and I apologize to anyone to looks at the following 300 lines.
+	
 	
 	//Print Top Left
 	for(i=0;i<3;i++){
@@ -550,60 +589,161 @@ void printSubGrids(int TopLeft[], int TopCntr[], int TopRght[], int MidLeft[], i
 		}
 	}
 	for(i=0;i<3;i++){
-		if(TopCntr[i+3] == 0){
+		if(MidCntr[i+3] == 0){
 			mvprintw(8, 7+i, " ");
 		}
-		if(TopCntr[i+3] == 1){
+		if(MidCntr[i+3] == 1){
 			mvprintw(8, 7+i, "X");
 		}
-		if(TopCntr[i+3] == 2){
+		if(MidCntr[i+3] == 2){
 			mvprintw(8, 7+i, "O");
 		}
 	}
 	for(i=0;i<3;i++){
-		if(TopCntr[i+6] == 0){
+		if(MidCntr[i+6] == 0){
 			mvprintw(9, 7+i, " ");
 		}
-		if(TopCntr[i+6] == 1){
+		if(MidCntr[i+6] == 1){
 			mvprintw(9, 7+i, "X");
 		}
-		if(TopCntr[i+6] == 2){
+		if(MidCntr[i+6] == 2){
 			mvprintw(9, 7+i, "O");
 		}
 	}
 	//Print Middle Right
 	for(i=0;i<3;i++){
-		if(TopRght[i] == 0){
+		if(MidRght[i] == 0){
 			mvprintw(7, 13+i, " ");
 		}
-		if(TopRght[i] == 1){
+		if(MidRght[i] == 1){
 			mvprintw(7, 13+i, "X");
 		}
-		if(TopRght[i] == 2){
+		if(MidRght[i] == 2){
 			mvprintw(7, 13+i, "O");
 		}
 	}
 	for(i=0;i<3;i++){
-		if(TopRght[i+3] == 0){
+		if(MidRght[i+3] == 0){
 			mvprintw(8, 13+i, " ");
 		}
-		if(TopRght[i+3] == 1){
+		if(MidRght[i+3] == 1){
 			mvprintw(8, 13+i, "X");
 		}
-		if(TopRght[i+3] == 2){
+		if(MidRght[i+3] == 2){
 			mvprintw(8, 13+i, "O");
 		}
 	}
 	for(i=0;i<3;i++){
-		if(TopRght[i+6] == 0){
+		if(MidRght[i+6] == 0){
 			mvprintw(9, 13+i, " ");
 		}
-		if(TopRght[i+6] == 1){
+		if(MidRght[i+6] == 1){
 			mvprintw(9, 13+i, "X");
 		}
-		if(TopRght[i+6] == 2){
+		if(MidRght[i+6] == 2){
 			mvprintw(9, 13+i, "O");
 		}
 	}
-
+	//Print Bottom Left
+	for(i=0;i<3;i++){
+		if(LowLeft[i] == 0){
+			mvprintw(13, 1+i, " ");
+		}
+		if(LowLeft[i] == 1){
+			mvprintw(13, 1+i, "X");
+		}
+		if(LowLeft[i] == 2){
+			mvprintw(13, 1+i, "O");
+		}
+	}
+	for(i=0;i<3;i++){
+		if(LowLeft[i+3] == 0){
+			mvprintw(14, 1+i, " ");
+		}
+		if(LowLeft[i+3] == 1){
+			mvprintw(14, 1+i, "X");
+		}
+		if(LowLeft[i+3] == 2){
+			mvprintw(14, 1+i, "O");
+		}
+	}
+	for(i=0;i<3;i++){
+		if(LowLeft[i+6] == 0){
+			mvprintw(15, 1+i, " ");
+		}
+		if(LowLeft[i+6] == 1){
+			mvprintw(15, 1+i, "X");
+		}
+		if(LowLeft[i+6] == 2){
+			mvprintw(15, 1+i, "O");
+		}
+	}
+	//Print Bottom Center
+	for(i=0;i<3;i++){
+		if(LowCntr[i] == 0){
+			mvprintw(13, 7+i, " ");
+		}
+		if(LowCntr[i] == 1){
+			mvprintw(13, 7+i, "X");
+		}
+		if(LowCntr[i] == 2){
+			mvprintw(13, 7+i, "O");
+		}
+	}
+	for(i=0;i<3;i++){
+		if(LowCntr[i+3] == 0){
+			mvprintw(14, 7+i, " ");
+		}
+		if(LowCntr[i+3] == 1){
+			mvprintw(14, 7+i, "X");
+		}
+		if(LowCntr[i+3] == 2){
+			mvprintw(14, 7+i, "O");
+		}
+	}
+	for(i=0;i<3;i++){
+		if(LowCntr[i+6] == 0){
+			mvprintw(15, 7+i, " ");
+		}
+		if(LowCntr[i+6] == 1){
+			mvprintw(15, 7+i, "X");
+		}
+		if(LowCntr[i+6] == 2){
+			mvprintw(15, 7+i, "O");
+		}
+	}
+	//Print Bottom Right
+	for(i=0;i<3;i++){
+		if(LowRght[i] == 0){
+			mvprintw(13, 13+i, " ");
+		}
+		if(LowRght[i] == 1){
+			mvprintw(13, 13+i, "X");
+		}
+		if(LowRght[i] == 2){
+			mvprintw(13, 13+i, "O");
+		}
+	}
+	for(i=0;i<3;i++){
+		if(LowRght[i+3] == 0){
+			mvprintw(14, 13+i, " ");
+		}
+		if(LowRght[i+3] == 1){
+			mvprintw(14, 13+i, "X");
+		}
+		if(LowRght[i+3] == 2){
+			mvprintw(14, 13+i, "O");
+		}
+	}
+	for(i=0;i<3;i++){
+		if(LowRght[i+6] == 0){
+			mvprintw(14, 13+i, " ");
+		}
+		if(LowRght[i+6] == 1){
+			mvprintw(14, 13+i, "X");
+		}
+		if(LowRght[i+6] == 2){
+			mvprintw(14, 13+i, "O");
+		}
+	}
 }		
